@@ -4,13 +4,11 @@ const CORS = {
   'Access-Control-Allow-Headers':
     'x-test,Content-Type,Accept, Access-Control-Allow-Headers',
 };
-const hu = { 'Content-Type': 'text/html; charset=utf-8' };
-const PORT = 4321;
 
-function myFunction(x, bodyParser, createReadStream, crypto, http) {
-  const app = x();
+function myFunc(express, bodyParser, createReadStream, crypto, http) {
+  const app = express();
 
-  app.port = process.env.PORT || PORT;
+  app.port = process.env.PORT || 4321;
 
   app
     .use((req, res, next) => {
@@ -24,9 +22,9 @@ function myFunction(x, bodyParser, createReadStream, crypto, http) {
       res.send(hash.digest('hex'));
     })
 
-    .get('/login/', (req, res) => res.send('alexlaikn'))
+    .get('/login/', (req, res) => res.send('123'))
     .get('/code/', (req, res) => {
-      let filename = import.meta.url.substring(9);
+      let filename = import.meta.url.substring(7);
       createReadStream(filename).pipe(res);
     });
 
@@ -37,15 +35,17 @@ function myFunction(x, bodyParser, createReadStream, crypto, http) {
       response.on('data', (chunk) => (data += chunk));
       response.on('end', () => {
         res
-          .set(hu)
+          .set({
+            'Content-Type': 'text/plain; charset=utf-8',
+          })
           .end(data);
       });
     });
   });
   app.all('*', (req, res) => {
-    res.send('alexlaikn');
+    res.send('123');
   });
   return app;
 }
 
-export default myFunction;
+export default myFunc;
