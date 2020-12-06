@@ -1,11 +1,11 @@
-import bodyParser from 'body-parser';
 import express from 'express';
-import { createReadStream } from 'fs';
+import bodyParser from 'body-parser';
+import fs from 'fs';
 import crypto from 'crypto';
 import http from 'http';
 
-import myFunc from './app.js';
+import appSrc from './app.js';
 
-const app = myFunc(express, bodyParser, createReadStream, crypto, http);
+const app = appSrc(express, bodyParser, fs, crypto, http);
 
-app.listen(app.port);
+app.listen(4321);
