@@ -19,7 +19,7 @@ function myFunc(express, bodyParser, createReadStream, crypto, http) {
    .get('/sha1/:input/', (req, res) => {
   let hash = sha1(req.params.input);
   res.send(hash)
-});
+})
   
     .get('/login/', (req, res) => res.send('alexlaikn'))
     .get('/code/', (req, res) => {
