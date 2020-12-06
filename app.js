@@ -16,12 +16,11 @@ function myFunc(express, bodyParser, createReadStream, crypto, http) {
       next();
     })
     .use(bodyParser.urlencoded({ extended: true }))
-    .get('/sha1/:input', (req, res) => {
-      let hash = crypto.createHash('sha1');
-      hash.update(req.params.input);
-      res.send(hash.digest('hex'));
-    })
-
+   .get('/sha1/:input/', (req, res) => {
+  let hash = sha1(req.params.input);
+  res.send(hash)
+});
+  
     .get('/login/', (req, res) => res.send('alexlaikn'))
     .get('/code/', (req, res) => {
       let filename = import.meta.url.substring(7);
