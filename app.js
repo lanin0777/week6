@@ -1,50 +1,64 @@
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-  'Access-Control-Allow-Headers':
-    'x-test,Content-Type,Accept, Access-Control-Allow-Headers',
-};
+export default function(express, bodyParser, fs, crypto, http) {
+   
+ const app = express();
+    const CORS = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept, Access-Control-Allow-Headers',
+        'Content-Type': 'text/plain; charset=utf-8'
+    };
+    const login = "alexlaikn";
 
-function myFunc(express, bodyParser, createReadStream, crypto, http) {
-  const app = express();
+    app
 
-  app.port = process.env.PORT || 4321;
+    .use(bodyParser.urlencoded({extend: true}))
+        .all('/login/', (req, res) => {
+            res.set(CORS);
+            res.send(login);
+        })
 
-  app
-    .use((req, res, next) => {
-      res.set(CORS);
-      next();
-    })
-    .use(bodyParser.urlencoded({ extended: true }))
-   .get('/sha1/:input/', (req, res) => {
-  let hash = sha1(req.params.input);
-  res.send(hash)
-})
-  
-    .get('/login/', (req, res) => res.send('alexlaikn'))
-    .get('/code/', (req, res) => {
-      let filename = import.meta.url.substring(7);
-      createReadStream(filename).pipe(res);
-    });
+        .all('/code/', (req, res) => {
+            res.set(CORS);
+            const path = import.meta.url.substring(7);
+            fs.readFile(path, 'utf8', ((err, data) =>
+                    res.send(data)
+            ));
+        })
 
-  app.all('/req/', (req, res) => {
-    let url = req.query.addr;
-    http.get(url, (response) => {
-      let data = '';
-      response.on('data', (chunk) => (data += chunk));
-      response.on('end', () => {
-        res
-          .set({
-            'Content-Type': 'text/plain; charset=utf-8',
-          })
-          .end(data);
-      });
-    });
-  });
-  app.all('*', (req, res) => {
-    res.send('alexlaikn');
-  });
-  return app;
+.all('/sha1/:input/', (req, res) => {
+            res.set(CORS);
+            const hash = crypto.createHash('sha1')
+            .update(req.params.input)
+            .digest('hex')
+            res.send(hash);
+        })
+        .use(bodyParser.json())
+        .all('/req/', (req, res) => {
+            res.set(CORS);
+            if (req.method === "GET" || req.method === "POST") {
+                const url = req.method === "GET" ? req.query.addr : req.body.addr;
+                if (url) {
+                    http.get(url, (response) => {
+                        let rawData = '';
+                        response.on('data', (chunk) => {
+                            rawData += chunk;
+                        });
+                        response.on('end', () => {
+                            res.send(rawData);
+                        });
+                    });
+                } else {
+                    res.send(login);
+                }
+            } else {
+                res.send(login);
+            }
+        })
+        .all('/*', (req, res) => {
+            res.set(CORS);
+            res.send(login);
+        });
+
+    return app;
 }
-
-export default myFunc;
+ 
